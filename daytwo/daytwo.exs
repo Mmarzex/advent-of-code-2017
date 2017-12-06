@@ -1,5 +1,4 @@
 
-
 defmodule DayTwo do
   defp handleRow(row) do
     row |> Enum.reduce(%{:min => -1, :max => -1}, fn(num, acc) ->
@@ -26,6 +25,36 @@ defmodule DayTwo do
     end
     )
   end
+
+  defp handleCheckList(row) do
+    row
+    |> Enum.map(fn(v) ->
+      IO.inspect(v)
+      Enum.reduce(v[:list], -1, fn(i, acc) ->
+        cond do
+          rem(v[:num], i) == 0 ->
+            div(v[:num], i)
+          true ->
+            acc
+        end
+      end)
+    end)
+  end
+  defp handleDivisionCheck(row) do
+    org = row
+    row
+    |> Enum.with_index
+    |> Enum.reduce([], fn({k, v}, acc) ->
+      List.insert_at(acc, -1, %{:num => k, :list => Enum.slice(org, v, Enum.count(org))})
+    end)
+    |> Enum.map(&(handleCheckList(&1)))
+  end
+
+  def runPartTwo(input) do
+    input
+      |> Enum.map(&(Enum.reverse(Enum.sort(&1))))
+      |> Enum.map(&(handleDivisionCheck(&1)))
+  end
 end
 
 rawInput = "1208	412	743	57	1097	53	71	1029	719	133	258	69	1104	373	367	365
@@ -50,4 +79,10 @@ rawInput
   |> Enum.map(&(String.split(&1, "\t")))
   |> Enum.map(fn(v) -> Enum.map(v, &(String.to_integer(&1))) end)
   |> DayTwo.run
+  |> IO.inspect
+
+testInput = [[5, 9, 2, 8], [9, 4, 7, 3], [3, 8, 6, 5]]
+
+testInput
+  |> DayTwo.runPartTwo
   |> IO.inspect
