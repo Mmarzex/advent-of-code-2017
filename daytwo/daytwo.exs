@@ -1,3 +1,4 @@
+require IEx;
 
 defmodule DayTwo do
   defp handleRow(row) do
@@ -27,19 +28,16 @@ defmodule DayTwo do
   end
 
   defp handleCheckList(row) do
-    row
-    |> Enum.map(fn(v) ->
-      IO.inspect(v)
-      Enum.reduce(v[:list], -1, fn(i, acc) ->
-        cond do
-          rem(v[:num], i) == 0 ->
-            div(v[:num], i)
-          true ->
-            acc
-        end
-      end)
+    Enum.reduce(row[:list], -1, fn(i, acc) ->
+      cond do
+        rem(row[:num], i) == 0 ->
+          div(row[:num], i)
+        true ->
+          acc
+      end
     end)
   end
+  
   defp handleDivisionCheck(row) do
     org = row
     row
@@ -48,12 +46,14 @@ defmodule DayTwo do
       List.insert_at(acc, -1, %{:num => k, :list => Enum.slice(org, v, Enum.count(org))})
     end)
     |> Enum.map(&(handleCheckList(&1)))
+    |> Enum.max
   end
 
   def runPartTwo(input) do
     input
       |> Enum.map(&(Enum.reverse(Enum.sort(&1))))
       |> Enum.map(&(handleDivisionCheck(&1)))
+      |> Enum.sum
   end
 end
 
@@ -78,7 +78,8 @@ rawInput
   |> String.split("\n")
   |> Enum.map(&(String.split(&1, "\t")))
   |> Enum.map(fn(v) -> Enum.map(v, &(String.to_integer(&1))) end)
-  |> DayTwo.run
+  |> DayTwo.runPartTwo
+  #|> DayTwo.run
   |> IO.inspect
 
 testInput = [[5, 9, 2, 8], [9, 4, 7, 3], [3, 8, 6, 5]]
